@@ -38,3 +38,4 @@ Please note that the performance is not guaranteed. Testing was done on Windows 
 I tested the program on Virus Total and found viruses!
 ====
 Then refrain from using the program. All screenshots of performance you can find here:
+![Before](https://prnt.sc/iRgZEJj06W51)
