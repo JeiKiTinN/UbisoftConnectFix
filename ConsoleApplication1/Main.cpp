@@ -9,7 +9,7 @@ int idk = 0;
 
 DWORD_PTR processAffinityMask = 1;
 
-DWORD GetProcId(const wchar_t* procName, bool bUWC)
+DWORD GetProcId(const wchar_t* procName, bool bUWC) //function to get process id
 {
 	DWORD procId = 0;
 	HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
