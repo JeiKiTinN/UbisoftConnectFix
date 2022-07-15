@@ -37,5 +37,10 @@ Please note that the performance is not guaranteed. Testing was done on Windows 
 
 I tested the program on Virus Total and found viruses!
 ====
-Then refrain from using the program. All screenshots of performance you can find here:
-![Before](https://prnt.sc/iRgZEJj06W51)
+Then refrain from using the program.
+
+Before:
+![Before](https://user-images.githubusercontent.com/44775752/179285287-419ee9c1-0952-4788-a4bc-af50260391ce.PNG)
+
+After:
+![After](https://user-images.githubusercontent.com/44775752/179285501-9c349f57-714e-4b14-9432-0b1c4f2d25e1.PNG)
