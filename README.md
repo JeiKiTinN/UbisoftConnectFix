@@ -25,7 +25,11 @@ How do I run this? I don’t have programming skills!
 
 You can download the source code and compile yourself or download the latest version [here](https://github.com/JeiKiTinN/UbisoftConnectFix/releases).
 
-You’ll need to unpack the program from the archive. Then launch Far Cry 6 (or any other game in Ubisoft Connect) and after you are in the menu, run the program (.exe file). You should see something like [this](https://prnt.sc/KO1aWkp3pBEt). If you see 11, it means that the program works correctly. After that, press Enter and the program will close automatically.
+You’ll need to unpack the program from the archive. Then launch Far Cry 6 (or any other game in Ubisoft Connect) and after you are in the menu, run the program (.exe file). You should see something like this:
+
+![Programm-Image](https://user-images.githubusercontent.com/44775752/179341254-d0355bff-9749-410d-8237-ae2d519925e2.png)
+
+If you see 11, it means that the program works correctly. After that, press Enter and the program will close automatically.
 
 Enjoy.
 
