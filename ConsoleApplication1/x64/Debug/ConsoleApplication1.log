@@ -1,3 +1,4 @@
-﻿D:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(514,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (ConsoleApplication1.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+﻿D:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(517,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (ConsoleApplication1.vcxproj).  This can lead to incorrect clean and rebuild behavior.
   Main.cpp
-  ConsoleApplication1.vcxproj -> C:\Users\plyas\Desktop\UbisoftConnectFIX\UbisoftConnectFix\x64\Debug\UbisoftConnectFIX.exe
+C:\Users\plyas\Desktop\e\UbisoftConnectFix\ConsoleApplication1\Main.cpp(43): warning C4715: 'GetProcId': not all control paths return a value
+  ConsoleApplication1.vcxproj -> C:\Users\plyas\Desktop\e\UbisoftConnectFix\x64\Debug\UbisoftConnectFIX.exe

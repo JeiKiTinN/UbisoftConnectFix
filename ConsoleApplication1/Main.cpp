@@ -3,9 +3,8 @@
 #include <TlHelp32.h>
 
 HANDLE hProcess = 0;
-DWORD UWC[20] = {0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,0x0, 0x0, 0x0, 0x0 };
-HANDLE hProcessUWC[20] = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
-int idk = 0;
+DWORD UWC[20] = {0x0};
+HANDLE hProcessUWC[20] = {0};
 
 DWORD_PTR processAffinityMask = 1;
 
@@ -13,6 +12,7 @@ DWORD GetProcId(const wchar_t* procName, bool bUWC) //function to get process id
 {
 	DWORD procId = 0;
 	HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	int index = 0;
 
 	if (hSnap != INVALID_HANDLE_VALUE) {
 		PROCESSENTRY32 procEntry;
@@ -26,33 +26,33 @@ DWORD GetProcId(const wchar_t* procName, bool bUWC) //function to get process id
 				{
 					if (!bUWC) {
 						procId = procEntry.th32ProcessID;
-						break;
+						return procId;
 					}
 					else 
 					{
+						if(index < (sizeof(UWC) / sizeof(UWC[0])))
 						procId = procEntry.th32ProcessID;
-						UWC[idk] = procId;
-						idk++;
+						UWC[index] = procId;
+						index++;
 					}
 				}
 			} while (Process32Next(hSnap, &procEntry));
 		}
 	}
 	CloseHandle(hSnap);
-	return procId;
 }
 
 int main()
 {
 	try{
-		DWORD procId = GetProcId(L"upc.exe", false);
-		GetProcId(L"UplayWebCore.exe", true);
+		DWORD procId = GetProcId(L"CalculatorApp.exe", false); //upc.exe
+		GetProcId(L"CalculatorApp.exe", true);
 
 		if (procId)
 		{
 			std::cout << "Intercepted the Ubisoft Connect process!" << std::endl;
-			//std::cout << procId << std::endl;
-			for (int i = 0; i < idk; i++)
+			int lengthUWC = sizeof(UWC)/sizeof(UWC[0]);
+			for (int i = 0; i < lengthUWC; i++)
 			{
 				if (UWC[i] != 0) {
 					std::cout << "Process ID: " << UWC[i] << std::endl;
