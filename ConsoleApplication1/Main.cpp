@@ -26,6 +26,7 @@ DWORD GetProcId(const wchar_t* procName, bool bUWC) //function to get process id
 				{
 					if (!bUWC) {
 						procId = procEntry.th32ProcessID;
+						CloseHandle(hSnap);
 						return procId;
 					}
 					else 
@@ -45,8 +46,8 @@ DWORD GetProcId(const wchar_t* procName, bool bUWC) //function to get process id
 int main()
 {
 	try{
-		DWORD procId = GetProcId(L"CalculatorApp.exe", false); //upc.exe
-		GetProcId(L"CalculatorApp.exe", true);
+		DWORD procId = GetProcId(L"upc.exe", false);
+		GetProcId(L"UplayWebCore.exe", true);
 
 		if (procId)
 		{
