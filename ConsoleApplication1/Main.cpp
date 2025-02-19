@@ -1,85 +1,89 @@
 #include <iostream>
+#include <vector>
 #include <windows.h>
 #include <TlHelp32.h>
+#include <stdexcept>
 
-HANDLE hProcess = 0;
-DWORD UWC[20] = {0x0};
-HANDLE hProcessUWC[20] = {0};
+std::vector<DWORD> GetProcIds(const std::wstring& procName) {
+	std::vector<DWORD> procIds;
 
-DWORD_PTR processAffinityMask = 1;
-
-DWORD GetProcId(const wchar_t* procName, bool bUWC) //function to get process id
-{
-	DWORD procId = 0;
+    // Create a snapshot of all processes in the system
 	HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-	int index = 0;
+	if (hSnap == INVALID_HANDLE_VALUE)
+		throw std::runtime_error("Failed to create process snapshot");
 
-	if (hSnap != INVALID_HANDLE_VALUE) {
-		PROCESSENTRY32 procEntry;
-		procEntry.dwSize = sizeof(procEntry);
+	PROCESSENTRY32 procEntry{};
+	procEntry.dwSize = sizeof(procEntry); // Set the size of the structure for WinAPI to work correctly (check tagPROCESSENTRY32W for more info)
 
-		if (Process32First(hSnap, &procEntry))
-		{
-			do
-			{
-				if (!_wcsicmp(procEntry.szExeFile, procName))
-				{
-					if (!bUWC) {
-						procId = procEntry.th32ProcessID;
-						CloseHandle(hSnap);
-						return procId;
-					}
-					else 
-					{
-						if(index < (sizeof(UWC) / sizeof(UWC[0])))
-						procId = procEntry.th32ProcessID;
-						UWC[index] = procId;
-						index++;
-					}
-				}
-			} while (Process32Next(hSnap, &procEntry));
-		}
+
+    // Iterate over all processes in the snapshot
+	if (Process32First(hSnap, &procEntry)) {
+		do {
+
+            // Compare the process name with the given one (case is not taken into account)
+			if (!_wcsicmp(procEntry.szExeFile, procName.c_str()))
+				procIds.push_back(procEntry.th32ProcessID);
+		} while (Process32Next(hSnap, &procEntry));
 	}
 	CloseHandle(hSnap);
+	return procIds;
 }
 
 int main()
 {
-	try{
-		DWORD procId = GetProcId(L"upc.exe", false);
-		GetProcId(L"UplayWebCore.exe", true);
+    try {
+        std::vector<DWORD> upcProcId = GetProcIds(L"upc.exe");
 
-		if (procId)
-		{
-			std::cout << "Intercepted the Ubisoft Connect process!" << std::endl;
-			int lengthUWC = sizeof(UWC)/sizeof(UWC[0]);
-			for (int i = 0; i < lengthUWC; i++)
-			{
-				if (UWC[i] != 0) {
-					std::cout << "Process ID: " << UWC[i] << std::endl;
-					hProcessUWC[i] = OpenProcess(PROCESS_ALL_ACCESS, NULL, UWC[i]);
-					std::cout << SetProcessAffinityMask(hProcessUWC[i], processAffinityMask);
-					std::cout << SetPriorityClass(hProcessUWC[i], IDLE_PRIORITY_CLASS) << std::endl;
-				}
-			}
-			hProcess = OpenProcess(PROCESS_ALL_ACCESS, NULL, procId);
-			std::cout << "Process ID: " << procId << std::endl;
-			std::cout << SetProcessAffinityMask(hProcess, processAffinityMask);
-			std::cout << SetPriorityClass(hProcess, IDLE_PRIORITY_CLASS) << std::endl;
-		}
-		else
-		{
-			std::cout << "Process not found, press enter to exit\n";
-			getchar();
-			return 0;
-		}
-		std::cout << "\nPress enter to exit\n";
-		getchar();
-	}
-	catch (const char* msg)
-	{
-		std::cout << "Error. Contact the developer for more help. Error text:" << std::endl;
-		std::cout << msg << std::endl;
-	}
+        if (upcProcId.empty()) {
+            throw std::runtime_error("Failed to find upc.exe process");
+        }
+
+        std::vector<DWORD> uwcProcIds = GetProcIds(L"UplayWebCore.exe");
+
+        std::cout << "Intercepted the Ubisoft Connect process (upc.exe)!" << std::endl;
+        std::cout << "Process ID: " << upcProcId[0] << std::endl;
+
+
+        // Set the affinity mask (here we use only the first processor)
+        DWORD_PTR processAffinityMask = 1; 
+
+        for (DWORD id : uwcProcIds) {
+            HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, id);
+            if (!hProcess) {
+                std::cerr << "Failed to open process with ID: " << id << std::endl;
+                continue;
+            }
+
+            // Trying to set the affinity mask for the process
+            if (!SetProcessAffinityMask(hProcess, processAffinityMask))
+                std::cerr << "Failed to set affinity for process " << id << std::endl;
+            if (!SetPriorityClass(hProcess, IDLE_PRIORITY_CLASS))
+                std::cerr << "Failed to set priority for process " << id << std::endl;
+
+            std::cout << "Configured process with ID: " << id << std::endl;
+            CloseHandle(hProcess); 
+        }
+
+       
+        HANDLE hUpcProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, upcProcId[0]);
+        if (!hUpcProcess)
+            throw std::runtime_error("Failed to open upc.exe process");
+
+        if (!SetProcessAffinityMask(hUpcProcess, processAffinityMask))
+            std::cerr << "Failed to set affinity for upc.exe" << std::endl;
+        if (!SetPriorityClass(hUpcProcess, IDLE_PRIORITY_CLASS))
+            std::cerr << "Failed to set priority for upc.exe" << std::endl;
+
+        CloseHandle(hUpcProcess);
+
+        std::cout << "\nPress enter to exit\n";
+        std::cin.get();
+    }
+    catch (const std::exception& ex) {
+        std::cerr << "Error: " << ex.what() << std::endl;
+        std::cin.get();
+        return 1;
+    }
+    return 0;
 }
 
